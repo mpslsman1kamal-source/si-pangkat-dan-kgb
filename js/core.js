@@ -178,7 +178,7 @@
 
   /* ---------- router & shell ---------- */
   var GURU = ['beranda', 'data-saya', 'riwayat', 'ajukan', 'berkas', 'unduh', 'profil', 'notifikasi', 'bantuan'];
-  var OP = ['dashboard', 'data-pegawai', 'detail-pegawai', 'tambah-pegawai', 'input-riwayat', 'verifikasi', 'jadwal', 'laporan', 'manajemen-akun', 'pengaturan', 'profil'];
+  var OP = ['dashboard', 'data-pegawai', 'detail-pegawai', 'tambah-pegawai', 'riwayat', 'input-riwayat', 'verifikasi', 'jadwal', 'laporan', 'manajemen-akun', 'pengaturan', 'profil'];
   var NAV_GURU = { 'ajukan': 'riwayat', 'unduh': 'berkas', 'notifikasi': 'beranda', 'bantuan': 'profil' };
   var NAV_OP = { 'detail-pegawai': 'data-pegawai', 'tambah-pegawai': 'data-pegawai', 'input-riwayat': 'riwayat', 'profil': 'dashboard' };
   var JUDUL = { beranda: 'Beranda', 'data-saya': 'Data Saya', riwayat: 'Riwayat', ajukan: 'Ajukan Usulan', berkas: 'Berkas Saya', unduh: 'Unduh Data', profil: 'Profil', notifikasi: 'Notifikasi', bantuan: 'Bantuan' };
@@ -239,13 +239,13 @@
     if (!S.token && name !== 'login') { name = 'login'; history.replaceState(null, '', '#/login'); }
     if (S.token && name === 'login') { name = beranda(); history.replaceState(null, '', '#/' + name); }
     if (S.token) { var ok = isOp() ? OP.indexOf(name) > -1 : GURU.indexOf(name) > -1; if (!ok) { toast('Halaman tidak tersedia untuk peran Anda.', 'err'); name = beranda(); history.replaceState(null, '', '#/' + name); } }
-    var key = name; if (name === 'profil' && isOp()) key = 'profil';
+    var key = (isOp() && name === 'riwayat') ? 'riwayat-admin' : name;
     var view = window.VIEWS[key]; if (!view) { $('#app').innerHTML = '<p class="p-6">Halaman tidak ditemukan.</p>'; return; }
     cur = { name: name, q: h.q }; var my = ++rid, root;
     if (name === 'login') { document.body.className = 'bg-bg-soft-lilac text-on-surface min-h-screen pt-safe pb-safe flex flex-col'; $('#app').innerHTML = '<main id="main" class="flex-1 flex flex-col relative w-full bg-bg-soft-lilac">' + view + '</main>'; root = $('#main'); }
     else root = isOp() ? bangunShellOp(view, name) : bangunShellGuru(view, name);
     window.scrollTo(0, 0); var b = $('#boot'); if (b) b.remove();
-    var pg = Pages[name]; if (pg) Promise.resolve(pg(root, h.q, { stale: function () { return my !== rid; } })).catch(function (e) { toast(e.message || 'Terjadi kesalahan.', 'err'); console.error(e); });
+    var pg = Pages[key]; if (pg) Promise.resolve(pg(root, h.q, { stale: function () { return my !== rid; } })).catch(function (e) { toast(e.message || 'Terjadi kesalahan.', 'err'); console.error(e); });
   }
   window.addEventListener('hashchange', route);
 
